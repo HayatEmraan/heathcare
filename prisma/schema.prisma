@@ -12,3 +12,220 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  DOCTOR
+  PATIENT
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  INPROGRESS
+  COMPLETED
+  CANCELED
+}
+
+enum PaymentStatus {
+  PAID
+  UNPAID
+}
+
+enum BloodGroup {
+  A_POSITIVE
+  A_NEGATIVE
+  B_POSITIVE
+  B_NEGATIVE
+  AB_POSITIVE
+  AB_NEGATIVE
+  O_POSITIVE
+  O_NEGATIVE
+}
+
+enum MaritalStatus {
+  MARRIED
+  UNMARRIED
+}
+
+model User {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  password  String
+  role      UserRole
+  status    UserStatus
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  admin     Admin?
+  patient   Patient?
+  doctor    Doctor?
+}
+
+model Admin {
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  userEmail     User     @relation(fields: [email], references: [email], onDelete: Cascade, onUpdate: Cascade)
+  photo         String
+  contactNumber String
+  isDeleted     Boolean
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Patient {
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  userEmail     User     @relation(fields: [email], references: [email], onDelete: Cascade, onUpdate: Cascade)
+  photo         String
+  contactNumber String
+  address       String
+  isDeleted     Boolean
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Doctor {
+  id                  String   @id @default(uuid())
+  name                String
+  email               String   @unique
+  userEmail           User     @relation(fields: [email], references: [email], onDelete: Cascade, onUpdate: Cascade)
+  photo               String
+  contactNumber       String
+  address             String
+  registrationNumber  String
+  experience          Int
+  gender              Gender
+  appointmentFee      Int
+  qualification       String
+  currentWorkingPlace String
+  designaton          String
+  isDeleted           Boolean
+  averageRating       Float
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model Appointment {
+  id             String            @id @default(uuid())
+  patientId      String
+  doctorId       String
+  scheduleId     String
+  videoCallingId String
+  status         AppointmentStatus
+  paymentStatus  PaymentStatus
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  payment        Payment?
+}
+
+model Payment {
+  id             String        @id @default(uuid())
+  appointmentId  String        @unique
+  appointment    Appointment   @relation(fields: [appointmentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  amount         String
+  transactionId  String
+  status         PaymentStatus
+  paymentGateway Json
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model Review {
+  id            String   @id @default(uuid())
+  patientId     String
+  doctorId      String
+  appointmentId String
+  rating        Float
+  comment       String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Prescription {
+  id            String   @id @default(uuid())
+  patientId     String
+  doctorId      String
+  appointmentId String
+  instructions  String
+  followUpDate  String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model PatientHealthData {
+  id                  String        @id @default(uuid())
+  patientId           String
+  dateOfBirth         DateTime
+  gender              Gender
+  bloodGroup          BloodGroup
+  hasAllergies        Boolean
+  hasDiabetes         Boolean
+  height              String
+  weight              String
+  smokingStatus       Boolean
+  dietaryPreferences  String
+  pregnancyStatus     Boolean
+  mentalHealthHistory String
+  immunizationStatus  String
+  hasPastSurgeries    Boolean
+  recentAnxiety       Boolean
+  recentDepression    Boolean
+  maritalStatus       MaritalStatus
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+}
+
+model MedicalReport {
+  id         String   @id @default(uuid())
+  patientId  String
+  reportName String
+  reportLink String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Schedule {
+  id        String   @id @default(uuid())
+  startDate DateTime
+  endDate   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DoctorSchedules {
+  doctorId      String
+  scheduleId    String
+  isBooked      Boolean
+  appointmentId String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@id([doctorId, scheduleId])
+}
+
+model DoctorSpecialties {
+  doctorId       String
+  specialitiesId String
+
+  @@id([doctorId, specialitiesId])
+}
+
+model Specialties {
+  id        String   @id @default(uuid())
+  title     String
+  icon      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
