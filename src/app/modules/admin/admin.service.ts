@@ -2,10 +2,18 @@ import { Admin, Prisma, PrismaClient, UserStatus } from "@prisma/client";
 import { searchFields } from "./admin.constant";
 import { sortingQuery } from "../../utils/sorting";
 import { paginationQuery } from "../../utils/pagination";
+import { IMeta } from "../../interface";
 
 const prisma = new PrismaClient();
 
-const retrieveAdminFromDB = async (query: Record<string, any>) => {
+interface IAdminResult {
+  data: Admin[];
+  meta: IMeta;
+}
+
+const retrieveAdminFromDB = async (
+  query: Record<string, any>
+): Promise<IAdminResult> => {
   const { searchQuery, page, limit, sortBy, orderBy, ...filterQuery } = query;
   const { skip, limitNumber, pageNumber } = await paginationQuery(page, limit);
 
@@ -67,7 +75,7 @@ const retrieveAdminFromDB = async (query: Record<string, any>) => {
   };
 };
 
-const retrieveSingleAdminFromDB = async (id: string) => {
+const retrieveSingleAdminFromDB = async (id: string): Promise<Admin | null> => {
   // checking admin
   const findAdmin = await prisma.admin.findUnique({
     where: {
@@ -82,7 +90,10 @@ const retrieveSingleAdminFromDB = async (id: string) => {
   return findAdmin;
 };
 
-const updateSingleAdminFromDB = async (id: string, data: Partial<Admin>) => {
+const updateSingleAdminFromDB = async (
+  id: string,
+  data: Partial<Admin>
+): Promise<Admin | null> => {
   // checking admin
   const findAdmin = await prisma.admin.findUnique({
     where: {
@@ -105,7 +116,7 @@ const updateSingleAdminFromDB = async (id: string, data: Partial<Admin>) => {
   return updateAdmin;
 };
 
-const deleteSingleAdminFromDB = async (id: string) => {
+const deleteSingleAdminFromDB = async (id: string): Promise<Admin | null> => {
   // checking admin
   const findAdmin = await prisma.admin.findUnique({
     where: {
