@@ -1,9 +1,10 @@
 import { Prisma, PrismaClient, UserRole } from "@prisma/client";
-import bcrypt from "bcrypt";
+import { bcryptHash } from "../../utils/bcrypt";
+import { BCRYPT_SALT } from "../../config";
 const prisma = new PrismaClient();
 
 const userCreate = async (data: Record<string, any>) => {
-  const hash = await bcrypt.hash(data.password as string, 10);
+  const hash = await bcryptHash(data.password, BCRYPT_SALT as string)
 
   const user: Prisma.UserCreateInput = {
     email: data.email as string,
