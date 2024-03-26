@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { authController } from "./auth.controller";
 import { authValidation } from "./auth.validation";
-import { zodValidation } from "../../utils/globalValidation";
+import { zodValidation } from "../../middlewares/globalValidation";
 
 const authRoutes = Router();
 

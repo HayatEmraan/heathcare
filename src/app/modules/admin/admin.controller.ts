@@ -1,9 +1,9 @@
 import { RequestHandler } from "express";
 import { adminService } from "./admin.service";
-import { catchAsync } from "../../utils/catchAsync";
+import { catchAsync } from "../../errors/catchAsync";
 import { pickQuery } from "./admin.utils";
 import { pickFields } from "./admin.constant";
-import { globalResponse } from "../../utils/globalResponseHandler";
+import { globalResponse } from "../../libs/globalResponseHandler";
 import httpStatus from "http-status";
 
 const retrieveAdmins: RequestHandler = catchAsync(async (req, res) => {

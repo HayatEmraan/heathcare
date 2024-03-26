@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { adminController } from "./admin.controller";
-import { zodValidation } from "../../utils/globalValidation";
+import { zodValidation } from "../../middlewares/globalValidation";
 import { adminValidation } from "./admin.validation";
 
 const adminRoutes = Router();

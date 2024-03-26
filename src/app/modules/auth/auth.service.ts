@@ -1,8 +1,8 @@
 import { PrismaClient, UserStatus } from "@prisma/client";
-import { generateToken } from "../../utils/generateToken";
+import { generateToken } from "../../libs/generateToken";
 import { JWT_ACCESS_EXPIRE, JWT_REFRESH_EXPIRE } from "../../config";
 import { bcryptCompare } from "../../utils/bcrypt";
-import { extractingToken } from "../../utils/extracToken";
+import { extractingToken } from "../../libs/extracToken";
 import { JwtPayload } from "jsonwebtoken";
 
 const prisma = new PrismaClient();
@@ -43,7 +43,7 @@ const loginWithDB = async (payload: { email: string; password: string }) => {
 
 const accessTokenFromRFT = async (token: string) => {
   const verifyToken = (await extractingToken(token)) as JwtPayload;
-  
+
   const findUser = await prisma.user.findUniqueOrThrow({
     where: {
       email: verifyToken.email,

@@ -1,8 +1,8 @@
 import { RequestHandler } from "express";
 import { userService } from "./user.service";
-import { catchAsync } from "../../utils/catchAsync";
+import { catchAsync } from "../../errors/catchAsync";
 import httpStatus from "http-status";
-import { globalResponse } from "../../utils/globalResponseHandler";
+import { globalResponse } from "../../libs/globalResponseHandler";
 
 const createUser: RequestHandler = catchAsync(async (req, res) => {
   globalResponse(res, {

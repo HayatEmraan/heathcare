@@ -8,7 +8,7 @@ export const errorHandler: ErrorRequestHandler = async (
 ) => {
   res.status(err.status || 500).json({
     success: false,
-    message: err.name || "Internal Server Error",
+    message: err.message,
     error: err,
   });
 };

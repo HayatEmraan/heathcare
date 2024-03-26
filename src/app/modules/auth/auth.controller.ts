@@ -1,6 +1,6 @@
 import httpStatus from "http-status";
-import { catchAsync } from "../../utils/catchAsync";
-import { globalResponse } from "../../utils/globalResponseHandler";
+import { catchAsync } from "../../errors/catchAsync";
+import { globalResponse } from "../../libs/globalResponseHandler";
 import { authService } from "./auth.service";
 
 const login = catchAsync(async (req, res) => {
