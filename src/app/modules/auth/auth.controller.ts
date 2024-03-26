@@ -32,7 +32,22 @@ const accessToken = catchAsync(async (req, res) => {
   });
 });
 
+
+const changePassword = catchAsync(async (req, res) => {
+  const { email } = req.user;
+  globalResponse(res, {
+    status: httpStatus.OK,
+    success: true,
+    message: "Password change successfully",
+    data: await authService.userPasswordChange(email, req.body),
+  });
+});
+
+
+
+
 export const authController = {
   login,
   accessToken,
+  changePassword,
 };

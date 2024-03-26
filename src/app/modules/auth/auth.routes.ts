@@ -13,4 +13,7 @@ authRoutes.post(
 
 authRoutes.post("/get-access-token", authController.accessToken);
 
+
+authRoutes.post("/change-password", authController.changePassword)
+
 export default authRoutes;
