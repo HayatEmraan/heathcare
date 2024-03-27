@@ -1,14 +1,23 @@
 {
-  "name": "heathcare-server",
+  "name": "HeathCare-Server",
   "version": "1.0.0",
-  "description": "",
-  "main": "server.js",
+  "description": "This repository contains the backend codebase responsible for handling server-side logic, database management, and communication between different system components.",
+  "main": "dist/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsnd --respawn src/server.ts"
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "prisma",
+    "express",
+    "typescript",
+    "dotenv",
+    "ts-node",
+    "cors",
+    "cookie-parser"
+  ],
+  "author": "Hayat <hayatprestige@gmail.com>",
+  "repository": "https://github.com/HayatEmraan/heathcare-server.git",
   "license": "ISC",
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",

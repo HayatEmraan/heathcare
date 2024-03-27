@@ -19,9 +19,13 @@ export const auth = (...roles: string[]) => {
 
       const decode = await extractingToken(token as string);
 
+      if (!decode) {
+        throw new appError("Forbidden access", httpStatus.FORBIDDEN);
+      }
+
       const { role, email } = decode;
 
-      if (!decode && !roles.includes(role)) {
+      if (!roles.includes(role)) {
         throw new appError(
           "User unauthorized or role not matched",
           httpStatus.UNAUTHORIZED
