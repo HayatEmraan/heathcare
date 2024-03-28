@@ -32,4 +32,10 @@ authRoutes.post(
   authController.forgotPassword
 );
 
+authRoutes.post(
+  "/reset-password",
+  zodValidation(authValidation.resetPassword),
+  authController.resetPassword
+);
+
 export default authRoutes;

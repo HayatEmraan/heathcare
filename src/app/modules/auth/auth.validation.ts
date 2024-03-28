@@ -20,8 +20,16 @@ const forgotPassword = z.object({
   }),
 });
 
+const resetPassword = z.object({
+  body: z.object({
+    id: z.string(),
+    password: z.string(),
+  }),
+});
+
 export const authValidation = {
   Login,
   changePassword,
   forgotPassword,
+  resetPassword,
 };

@@ -148,9 +148,38 @@ const userForgotPassword = async (payload: { email: string }) => {
   };
 };
 
+const resetPassword = async (
+  token: string,
+  payload: { id: string; password: string }
+) => {
+  const findUser = await prisma.user.findUniqueOrThrow({
+    where: {
+      id: payload.id,
+      status: UserStatus.ACTIVE,
+    },
+  });
+
+  const hash = await bcryptHash(payload.password, BCRYPT_SALT as string);
+
+  await prisma.user.update({
+    where: {
+      id: findUser.id,
+      status: UserStatus.ACTIVE,
+    },
+    data: {
+      password: hash,
+    },
+  });
+
+  return {
+    info: "Password updated with new password!",
+  };
+};
+
 export const authService = {
   loginWithDB,
   accessTokenFromRFT,
   userPasswordChange,
   userForgotPassword,
+  resetPassword,
 };
