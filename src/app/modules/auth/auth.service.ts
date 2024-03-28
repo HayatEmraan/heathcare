@@ -4,12 +4,15 @@ import {
   BCRYPT_SALT,
   JWT_ACCESS_EXPIRE,
   JWT_REFRESH_EXPIRE,
+  JWT_RESET_TOKEN_EXPIRE,
+  RESET_PASS_LINK,
 } from "../../config";
 import { bcryptCompare, bcryptHash } from "../../utils/bcrypt";
 import { extractingToken } from "../../libs/extracToken";
 import { JwtPayload } from "jsonwebtoken";
 import appError from "../../errors/appError";
 import httpStatus from "http-status";
+import emailSend from "./email.auth";
 
 const prisma = new PrismaClient();
 
@@ -111,8 +114,43 @@ const userPasswordChange = async (email: string, payload: IPayload) => {
   };
 };
 
+const userForgotPassword = async (payload: { email: string }) => {
+  const findUser = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: payload.email,
+      status: UserStatus.ACTIVE,
+    },
+  });
+
+  const payloadToken = {
+    email: findUser.email,
+    role: findUser.role,
+  };
+  const resetToken = generateToken(
+    payloadToken,
+    JWT_RESET_TOKEN_EXPIRE as string
+  );
+
+  const resetLink = RESET_PASS_LINK + `id=${findUser.id}&token=${resetToken}`;
+
+  await emailSend(
+    findUser.email,
+    `
+      <div>
+          <p>Dear user,</p>
+          <p>Your password reset link <a href=${resetLink}><button>Reset Password</button></a>
+      </div>
+    `
+  );
+
+  return {
+    resetToken,
+  };
+};
+
 export const authService = {
   loginWithDB,
   accessTokenFromRFT,
   userPasswordChange,
+  userForgotPassword,
 };

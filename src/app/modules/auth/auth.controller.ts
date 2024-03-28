@@ -32,7 +32,6 @@ const accessToken = catchAsync(async (req, res) => {
   });
 });
 
-
 const changePassword = catchAsync(async (req, res) => {
   const { email } = req.user;
   globalResponse(res, {
@@ -43,11 +42,18 @@ const changePassword = catchAsync(async (req, res) => {
   });
 });
 
-
-
+const forgotPassword = catchAsync(async (req, res) => {
+  globalResponse(res, {
+    status: httpStatus.OK,
+    success: true,
+    message: "Forgot password request successfully",
+    data: await authService.userForgotPassword(req.body),
+  });
+});
 
 export const authController = {
   login,
   accessToken,
   changePassword,
+  forgotPassword,
 };

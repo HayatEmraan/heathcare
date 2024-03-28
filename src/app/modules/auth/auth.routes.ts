@@ -22,7 +22,14 @@ authRoutes.post(
 authRoutes.post(
   "/change-password",
   auth(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.DOCTOR, UserRole.PATIENT),
+  zodValidation(authValidation.changePassword),
   authController.changePassword
+);
+
+authRoutes.post(
+  "/forgot-password",
+  zodValidation(authValidation.forgotPassword),
+  authController.forgotPassword
 );
 
 export default authRoutes;
