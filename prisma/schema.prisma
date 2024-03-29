@@ -93,7 +93,7 @@ model Patient {
   name              String
   email             String             @unique
   userEmail         User               @relation(fields: [email], references: [email], onDelete: Cascade, onUpdate: Cascade)
-  photo             String
+  photoURL          String?
   contactNumber     String
   address           String
   isDeleted         Boolean
@@ -117,7 +117,7 @@ model Doctor {
   contactNumber       String
   address             String
   registrationNumber  String
-  experience          Int
+  experience          Int                 @default(0)
   gender              Gender
   appointmentFee      Int
   qualification       String
