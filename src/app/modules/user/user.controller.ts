@@ -9,7 +9,7 @@ const createUser: RequestHandler = catchAsync(async (req, res) => {
     status: httpStatus.CREATED,
     success: true,
     message: "user created",
-    data: await userService.userCreate(req.body),
+    data: await userService.userCreate(req.body, req.file),
   });
 });
 

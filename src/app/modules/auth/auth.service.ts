@@ -37,7 +37,6 @@ const loginWithDB = async (payload: { email: string; password: string }) => {
     email: findUser.email,
     role: findUser.role,
   };
-
   const accessToken = generateToken(payloadToken, JWT_ACCESS_EXPIRE as string);
   const refreshToken = generateToken(
     payloadToken,

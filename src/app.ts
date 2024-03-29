@@ -1,14 +1,10 @@
 import express, { Application } from "express";
 export const app: Application = express();
-import env from "dotenv";
 import cors from "cors";
 import { errorHandler } from "./app/errors/errorHandler";
 import routes from "./app/routes";
-import { notFound } from "./app/utils/notfound";
 import cookieParser from "cookie-parser";
-env.config({
-  path: process.cwd() + ".env",
-});
+import { notFound } from "./app/middlewares/notfound";
 
 // middlewares
 app.use(cors());

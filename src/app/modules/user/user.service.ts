@@ -1,10 +1,14 @@
 import { Prisma, PrismaClient, UserRole } from "@prisma/client";
 import { bcryptHash } from "../../utils/bcrypt";
 import { BCRYPT_SALT } from "../../config";
+import { uploadCloud } from "../../utils/image";
 const prisma = new PrismaClient();
 
-const userCreate = async (data: Record<string, any>) => {
-  const hash = await bcryptHash(data.password, BCRYPT_SALT as string)
+const userCreate = async (
+  data: Record<string, any>,
+  file: Record<string, any> | undefined
+) => {
+  const hash = await bcryptHash(data.password, BCRYPT_SALT as string);
 
   const user: Prisma.UserCreateInput = {
     email: data.email as string,
@@ -19,12 +23,18 @@ const userCreate = async (data: Record<string, any>) => {
     data: user,
   });
 
+  let photoURL;
+
+  if (file) {
+    photoURL = await uploadCloud(file.path);
+  }
   let result;
   if (data.admin) {
     const adminTransaction = prisma.admin.create({
       data: {
         ...data.admin,
         email: data.email as string,
+        photoURL: photoURL?.secure_url,
       },
     });
 
@@ -34,6 +44,7 @@ const userCreate = async (data: Record<string, any>) => {
       data: {
         ...data.patient,
         email: data.email as string,
+        photoURL: photoURL?.secure_url,
       },
     });
     result = await prisma.$transaction([userTransaction, patientTransaction]);
@@ -42,6 +53,7 @@ const userCreate = async (data: Record<string, any>) => {
       data: {
         ...data.doctor,
         email: data.email as string,
+        photoURL: photoURL?.secure_url,
       },
     });
     result = await prisma.$transaction([userTransaction, doctorTransaction]);

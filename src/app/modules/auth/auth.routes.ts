@@ -9,7 +9,7 @@ const authRoutes = Router();
 
 authRoutes.post(
   "/login",
-  zodValidation(authValidation.Login),
+  // zodValidation(authValidation.Login),
   authController.login
 );
 
