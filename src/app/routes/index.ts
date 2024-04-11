@@ -5,6 +5,7 @@ import authRoutes from "../modules/auth/auth.routes";
 import doctorRoutes from "../modules/doctor/doctor.routes";
 import specialtiesRoutes from "../modules/specialties/specialties.routes";
 import patientRoutes from "../modules/patient/patient.routes";
+import scheduleRoutes from "../modules/schedule/schedule.routes";
 
 const routes = Router();
 
@@ -32,6 +33,10 @@ const bulkRoutes = [
   {
     path: "/specialties",
     router: specialtiesRoutes,
+  },
+  {
+    path: "/schedule",
+    router: scheduleRoutes,
   },
 ];
 
