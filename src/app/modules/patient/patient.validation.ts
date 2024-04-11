@@ -10,6 +10,6 @@ const update = z.object({
     .partial(),
 });
 
-export const doctorValidation = {
+export const patientValidation = {
   update,
 };

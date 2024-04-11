@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { zodValidation } from "../../middlewares/globalValidation";
-import { adminValidation } from "./doctor.validation";
+import { doctorValidation } from "./doctor.validation";
 import { auth } from "../../middlewares/auth";
 import { UserRole } from "@prisma/client";
 import { doctorController } from "./doctor.controller";
@@ -19,7 +19,7 @@ doctorRoutes.delete("/delete-doctor/:id", doctorController.deleteDoctorById);
 
 doctorRoutes.patch(
   "/update-doctor/:id",
-  zodValidation(adminValidation.update),
+  zodValidation(doctorValidation.update),
   doctorController.updateDoctorById
 );
 
