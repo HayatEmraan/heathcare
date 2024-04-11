@@ -2,6 +2,8 @@ import { Router } from "express";
 import userRouter from "../modules/user/user.routes";
 import adminRoutes from "../modules/admin/admin.routes";
 import authRoutes from "../modules/auth/auth.routes";
+import doctorRoutes from "../modules/doctor/doctor.routes";
+import specialtiesRoutes from "../modules/specialties/specialties.routes";
 
 const routes = Router();
 
@@ -17,6 +19,14 @@ const bulkRoutes = [
   {
     path: "/auth",
     router: authRoutes,
+  },
+  {
+    path: "/doctor",
+    router: doctorRoutes,
+  },
+  {
+    path: "/specialties",
+    router: specialtiesRoutes,
   },
 ];
 

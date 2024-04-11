@@ -6,7 +6,7 @@ interface IOutput {
   status: number;
   message: string;
   meta?: IMeta;
-  data: Record<string, any> | null;
+  data: Record<string, any> | null | undefined;
 }
 
 export const globalResponse = async (res: Response, output: IOutput) => {
