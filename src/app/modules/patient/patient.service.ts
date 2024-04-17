@@ -11,6 +11,11 @@ interface IPatientResult {
   meta: IMeta;
 }
 
+interface IMedicalReport {
+  reportLink: string;
+  reportName: string;
+}
+
 const retrievePatientFromDB = async (
   query: Record<string, any>
 ): Promise<IPatientResult> => {
@@ -94,7 +99,7 @@ const retrieveSinglePatientFromDB = async (
 
 const updateSinglePatientFromDB = async (
   id: string,
-  data: Partial<Patient>
+  data: Record<string, any>
 ): Promise<Patient | null> => {
   // checking Patient
   const findPatient = await prisma.patient.findUnique({
@@ -108,14 +113,53 @@ const updateSinglePatientFromDB = async (
     throw new Error("Patient isn't found");
   }
 
-  const updatePatient = await prisma.patient.update({
-    where: {
-      id,
-    },
-    data,
-  });
+  const { medicalData, healthData, ...patientInfo } = data;
 
-  return updatePatient;
+  return prisma.$transaction(async (tx) => {
+    await tx.patient.update({
+      where: {
+        id,
+      },
+      data: patientInfo,
+    });
+
+    if (healthData) {
+      await tx.patientHealthData.upsert({
+        where: {
+          patientId: id,
+        },
+        update: healthData,
+        create: {
+          ...healthData,
+          patientId: id,
+        },
+      });
+    }
+
+    if (medicalData && medicalData.length > 0) {
+      const medicalInfo = medicalData.map((medical: IMedicalReport) => {
+        return {
+          reportName: medical.reportName,
+          reportLink: medical.reportLink,
+          patientId: id,
+        };
+      });
+      await tx.medicalReport.createMany({
+        data: medicalInfo,
+      });
+    }
+
+    return await tx.patient.findUnique({
+      where: {
+        id,
+        isDeleted: false,
+      },
+      include: {
+        MedicalReport: true,
+        PatientHealthData: true,
+      },
+    });
+  });
 };
 
 const deleteSinglePatientFromDB = async (

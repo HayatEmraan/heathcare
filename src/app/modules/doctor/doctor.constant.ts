@@ -9,4 +9,5 @@ export const pickFields = [
   "page",
   "sortBy",
   "orderBy",
+  "specialty",
 ];

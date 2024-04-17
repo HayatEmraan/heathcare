@@ -19,7 +19,15 @@ interface IDoctorSpecialties {
 const retrieveDoctorFromDB = async (
   query: Record<string, any>
 ): Promise<IDoctorResult> => {
-  const { searchQuery, page, limit, sortBy, orderBy, ...filterQuery } = query;
+  const {
+    searchQuery,
+    page,
+    specialty,
+    limit,
+    sortBy,
+    orderBy,
+    ...filterQuery
+  } = query;
   const { skip, limitNumber, pageNumber } = await paginationQuery(page, limit);
 
   const sorting = await sortingQuery({ sortBy, orderBy });
@@ -48,6 +56,20 @@ const retrieveDoctorFromDB = async (
       });
     }
   }
+  if (specialty) {
+    conditions.push({
+      doctorSpecialties: {
+        some: {
+          specialties: {
+            title: {
+              contains: specialty,
+              mode: "insensitive",
+            },
+          },
+        },
+      },
+    });
+  }
 
   conditions.push({
     isDeleted: false,
@@ -60,7 +82,11 @@ const retrieveDoctorFromDB = async (
       AND: conditions,
     },
     include: {
-      doctorSpecialties: true,
+      doctorSpecialties: {
+        include: {
+          specialties: true,
+        },
+      },
     },
     skip,
     take: limitNumber,
