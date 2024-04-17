@@ -1,5 +1,7 @@
 import { PrismaClient, Specialties } from "@prisma/client";
 import { uploadCloud } from "../../utils/image";
+import appError from "../../errors/appError";
+import httpStatus from "http-status";
 
 const prisma = new PrismaClient();
 
@@ -10,6 +12,10 @@ const insertIntoDBSpecialties = async (
   let photoURL;
   if (file) {
     photoURL = await uploadCloud(file.path);
+  }
+
+  if (!file) {
+    throw new appError("Image required", httpStatus.EXPECTATION_FAILED);
   }
   return await prisma.specialties.create({
     data: {

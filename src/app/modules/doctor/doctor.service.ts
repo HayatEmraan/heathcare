@@ -11,6 +11,11 @@ interface IDoctorResult {
   meta: IMeta;
 }
 
+interface IDoctorSpecialties {
+  specialties: string;
+  isDeleted: true;
+}
+
 const retrieveDoctorFromDB = async (
   query: Record<string, any>
 ): Promise<IDoctorResult> => {
@@ -55,7 +60,7 @@ const retrieveDoctorFromDB = async (
       AND: conditions,
     },
     include: {
-      doctorSpecialties: true
+      doctorSpecialties: true,
     },
     skip,
     take: limitNumber,
@@ -78,7 +83,9 @@ const retrieveDoctorFromDB = async (
   };
 };
 
-const retrieveSingleDoctorFromDB = async (id: string): Promise<Doctor | null> => {
+const retrieveSingleDoctorFromDB = async (
+  id: string
+): Promise<Doctor | null> => {
   // checking Doctor
   const findDoctor = await prisma.doctor.findUnique({
     where: {
@@ -86,8 +93,8 @@ const retrieveSingleDoctorFromDB = async (id: string): Promise<Doctor | null> =>
       isDeleted: false,
     },
     include: {
-      doctorSpecialties: true
-    }
+      doctorSpecialties: true,
+    },
   });
 
   if (!findDoctor) {
@@ -98,7 +105,7 @@ const retrieveSingleDoctorFromDB = async (id: string): Promise<Doctor | null> =>
 
 const updateSingleDoctorFromDB = async (
   id: string,
-  data: Partial<Doctor>
+  data: Record<string, any>
 ): Promise<Doctor | null> => {
   // checking Doctor
   const findDoctor = await prisma.doctor.findUnique({
@@ -112,14 +119,72 @@ const updateSingleDoctorFromDB = async (
     throw new Error("Doctor isn't found");
   }
 
-  const updateDoctor = await prisma.doctor.update({
-    where: {
-      id,
-    },
-    data,
+  const { specialty, ...doctor } = data;
+
+  prisma.$transaction(async (tx) => {
+    await tx.doctor.update({
+      where: {
+        id,
+      },
+      data: doctor,
+    });
+
+    if (specialty && specialty.length > 0) {
+      const deletedSpecialty = specialty
+        .filter((sp: IDoctorSpecialties) => sp.isDeleted)
+        .map((spFil: IDoctorSpecialties) => spFil.specialties);
+
+      const updatedSpecialty = specialty
+        .filter((sp: IDoctorSpecialties) => !sp.isDeleted)
+        .map((spFil: IDoctorSpecialties) => {
+          return {
+            specialtiesId: spFil.specialties,
+            doctorId: id,
+          };
+        });
+
+      if (deletedSpecialty && deletedSpecialty.length > 0) {
+        await tx.doctorSpecialties.deleteMany({
+          where: {
+            specialtiesId: {
+              in: deletedSpecialty,
+            },
+          },
+        });
+      }
+
+      if (updatedSpecialty && updatedSpecialty.length > 0) {
+        for (const specialty of updatedSpecialty) {
+          const result = await tx.doctorSpecialties.upsert({
+            where: {
+              doctorSpecialtyID: {
+                specialtiesId: specialty.specialtiesId,
+                doctorId: specialty.doctorId,
+              },
+            },
+            update: {
+              specialtiesId: specialty.specialtiesId,
+            },
+            create: specialty,
+          });
+        }
+      }
+    }
   });
 
-  return updateDoctor;
+  return await prisma.doctor.findUnique({
+    where: {
+      id,
+      isDeleted: false,
+    },
+    include: {
+      doctorSpecialties: {
+        include: {
+          specialties: true,
+        },
+      },
+    },
+  });
 };
 
 const deleteSingleDoctorFromDB = async (id: string): Promise<Doctor | null> => {
