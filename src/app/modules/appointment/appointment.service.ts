@@ -6,7 +6,7 @@ const insertScheduleIntoDB = async (
   id: string,
   payload: Record<string, any>
 ) => {
-  await prisma.doctor.findFirstOrThrow({
+  const doctorInfo = await prisma.doctor.findFirstOrThrow({
     where: {
       id: payload.doctorId,
       isDeleted: false,
@@ -49,6 +49,24 @@ const insertScheduleIntoDB = async (
       data: {
         isBooked: true,
         appointmentId: createAppointment.id,
+      },
+    });
+
+    const today = new Date();
+
+    const transactionId =
+      "HealthCare" +
+      "-" +
+      today.getFullYear() +
+      +today.getDay() +
+      +today.getHours() +
+      today.getMinutes();
+
+    await prisma.payment.create({
+      data: {
+        appointmentId: createAppointment.id,
+        amount: doctorInfo.appointmentFee,
+        transactionId,
       },
     });
 
