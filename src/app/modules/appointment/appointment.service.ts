@@ -1,8 +1,8 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, UserRole } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 const prisma = new PrismaClient();
 
-const insertScheduleIntoDB = async (
+const insertAppointmentIntoDB = async (
   id: string,
   payload: Record<string, any>
 ) => {
@@ -73,7 +73,46 @@ const insertScheduleIntoDB = async (
     return createAppointment;
   });
 };
+const retrieveAppointmentFromDB = async (user: Record<string, any>) => {
+  if (user.role === UserRole.DOCTOR) {
+    return await prisma.appointment.findMany({
+      where: {
+        doctorId: user.id,
+      },
+      include: {
+        patient: {
+          include: {
+            MedicalReport: true,
+            PatientHealthData: true,
+          },
+        },
+        schedule: true,
+      },
+    });
+  } else if (user.role === UserRole.PATIENT) {
+    return await prisma.appointment.findMany({
+      where: {
+        patientId: user.id,
+      },
+      include: {
+        doctor: true,
+        schedule: true,
+      },
+    });
+  }
+};
+
+const retrieveAllAppointmentFromDB = async () => {
+  return await prisma.appointment.findMany({
+    include: {
+      doctor: true,
+      patient: true,
+    },
+  });
+};
 
 export const appointmentService = {
-  insertScheduleIntoDB,
+  insertAppointmentIntoDB,
+  retrieveAppointmentFromDB,
+  retrieveAllAppointmentFromDB,
 };

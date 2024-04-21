@@ -9,10 +9,30 @@ const createAppointment = catchAsync(async (req, res) => {
     status: httpStatus.OK,
     success: true,
     message: "Appointment created successfully!",
-    data: await appointmentService.insertScheduleIntoDB(id, req.body),
+    data: await appointmentService.insertAppointmentIntoDB(id, req.body),
+  });
+});
+
+const getMyAppointment = catchAsync(async (req, res) => {
+  globalResponse(res, {
+    status: httpStatus.OK,
+    success: true,
+    message: "Appointment retrieve successfully!",
+    data: await appointmentService.retrieveAppointmentFromDB(req.user),
+  });
+});
+
+const getAllAppointment = catchAsync(async (req, res) => {
+  globalResponse(res, {
+    status: httpStatus.OK,
+    success: true,
+    message: "Appointment are retrieves successfully!",
+    data: await appointmentService.retrieveAllAppointmentFromDB(),
   });
 });
 
 export const appointmentController = {
   createAppointment,
+  getMyAppointment,
+  getAllAppointment,
 };
