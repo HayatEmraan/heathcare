@@ -20,3 +20,13 @@ export const cloudImage = {
   apiSecret: process.env.API_SECRET,
   uploadPreset: process.env.UPLOAD_PRESET,
 };
+
+export const sslPayment = {
+  store_id: process.env.STORE_ID,
+  store_pass: process.env.STORE_PASS,
+  success_url: process.env.SUCCESS_URL,
+  cancel_url: process.env.CANCEL_URL,
+  fail_url: process.env.FAIL_URL,
+  ssl_payment_url: process.env.SSL_PAYMENT_URL,
+  validation_api: process.env.VALIDATION_URL,
+};
