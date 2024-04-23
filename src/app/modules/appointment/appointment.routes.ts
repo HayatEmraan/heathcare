@@ -23,4 +23,10 @@ appointmentRoutes.get(
   appointmentController.getAllAppointment
 );
 
+appointmentRoutes.patch(
+  "/change-status/:appointmentId",
+  auth(UserRole.DOCTOR, UserRole.ADMIN, UserRole.SUPER_ADMIN),
+  appointmentController.changeAppointmentStatus
+);
+
 export default appointmentRoutes;

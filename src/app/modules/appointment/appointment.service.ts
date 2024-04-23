@@ -1,5 +1,12 @@
-import { PrismaClient, UserRole } from "@prisma/client";
+import {
+  AppointmentStatus,
+  PaymentStatus,
+  PrismaClient,
+  UserRole,
+} from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
+import appError from "../../errors/appError";
+import httpStatus from "http-status";
 const prisma = new PrismaClient();
 
 const insertAppointmentIntoDB = async (
@@ -111,8 +118,108 @@ const retrieveAllAppointmentFromDB = async () => {
   });
 };
 
+const changeBookedAppointmentStatus = async (
+  id: string,
+  user: Record<string, any>,
+  payload: AppointmentStatus
+) => {
+  await prisma.appointment.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+
+  if (user.role === UserRole.DOCTOR) {
+    const result = await prisma.appointment.update({
+      where: {
+        id,
+        doctorId: user.id,
+      },
+      data: {
+        status: payload,
+      },
+    });
+
+    if (!result) {
+      throw new appError(
+        "Unauthorized to update appointment status!",
+        httpStatus.UNAUTHORIZED
+      );
+    }
+  } else {
+    await prisma.appointment.update({
+      where: {
+        id,
+      },
+      data: {
+        status: payload,
+      },
+    });
+  }
+
+  return await prisma.appointment.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+};
+
+const cancelUnpaidAppointment = async () => {
+  const thirtyMinAgo = new Date(Date.now() - 30 * 60 * 1000);
+
+  const unpaidAppointments = await prisma.appointment.findMany({
+    where: {
+      createdAt: {
+        gte: thirtyMinAgo,
+      },
+      payment: {
+        status: PaymentStatus.UNPAID,
+      },
+    },
+  });
+
+  const unpaidAppointmentId = unpaidAppointments.map(
+    (appointment) => appointment.id
+  );
+
+  prisma.$transaction(async (tx) => {
+    // delete unpaid payment
+    await tx.payment.deleteMany({
+      where: {
+        appointmentId: {
+          in: unpaidAppointmentId,
+        },
+        status: PaymentStatus.UNPAID,
+      },
+    });
+
+    // doctor schedule isBooked clear
+    await tx.doctorSchedules.updateMany({
+      where: {
+        appointmentId: {
+          in: unpaidAppointmentId,
+        },
+      },
+      data: {
+        isBooked: false,
+      },
+    });
+
+    // finally delete all unpaid appointment
+    await tx.appointment.deleteMany({
+      where: {
+        id: {
+          in: unpaidAppointmentId,
+        },
+      },
+    });
+  });
+};
+
 export const appointmentService = {
   insertAppointmentIntoDB,
   retrieveAppointmentFromDB,
   retrieveAllAppointmentFromDB,
+  changeBookedAppointmentStatus,
+  cancelUnpaidAppointment,
 };
